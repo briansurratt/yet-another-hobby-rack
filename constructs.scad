@@ -24,3 +24,41 @@ function build_points(deltas, index = 0, points = [[0, 0]]) =
         );
 
 function calc_point(point, delta) = [point[0] + delta[0], point[1] + delta[1]];
+
+
+module interior_support(support_length = 100, frame_thickness) {
+
+    translate([-support_length / 2, 0, 0])
+
+    translate([0, 0, -frame_thickness/2])
+    rotate([ 90,00,0]) 
+    rotate([ 0,90,0]) 
+    linear_extrude(height=support_length) {
+        
+        corner_shilouette(frame_thickness);
+
+    }
+
+}
+
+
+module corner_shilouette(thickness = 2) {
+
+    poly_path([
+            [0,2 * thickness],
+            [thickness,-thickness],
+            [0,-thickness],
+        ]);
+
+}
+
+module alignment_blade(thickness = 20, width  = 5,frame_thickness) {
+
+    translate([-width/2, 0, -frame_thickness/2])
+    rotate([90, 0, 90])
+    linear_extrude(height=width) {
+        corner_shilouette(thickness);
+    }
+    
+
+}

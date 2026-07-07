@@ -24,15 +24,55 @@ module blank_frame() {
 
 }
 
-// freudian_miter(frame_edge, frame_thickness);
 
-
-back();
+// back();
 // vertical_side();
-// horizontal_side();
+horizontal_side();
 
 
 module horizontal_side() {
+
+    edge_shift =  frame_thickness;
+    support_length = frame_edge - 2 * frame_thickness;
+
+
+    
+    difference() {
+
+        // corner    
+        translate([1/2 * frame_edge - frame_thickness,-edge_shift , 0]) 
+        rotate([0, 0, 90])     interior_support(support_length, frame_thickness);
+
+        // alignment blade socket
+        translate([1/2 * frame_edge - frame_thickness,0  , 0]) 
+        rotate([0, 0, 90])
+        alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+
+    }
+
+    difference() {
+
+        // corner    
+        mirror([1, 0, 0])  {
+            translate([1/2 * frame_edge - frame_thickness,-edge_shift , 0]) 
+            rotate([0, 0, 90])     interior_support(support_length, frame_thickness);
+        }
+
+        // alignment blade socket
+        mirror([1, 0, 0])  {
+            translate([1/2 * frame_edge - frame_thickness,0, 0]) 
+            rotate([0, 0, 90])
+            alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+        }
+
+
+    }
+
+
+    // alignment blades for the edge that interfaces with the back of the frame
+    translate([0, frame_edge / 2 - frame_thickness,0])
+    mirror([0, 1, 0]) 
+    alignment_blade(frame_thickness, width = alignment_blade_thickness, frame_thickness);
 
     difference() {
         blank_frame();
@@ -48,6 +88,21 @@ module horizontal_side() {
 }
 
 module vertical_side() {
+
+    // bottom
+    translate([0, -frame_edge / 2 + frame_thickness , 0])
+    alignment_blade(frame_thickness, width = alignment_blade_thickness, frame_thickness);
+
+    // right
+    rotate([0, 0, 90]) 
+    translate([0, -frame_edge / 2 + frame_thickness , 0])
+    #alignment_blade(frame_thickness, width = alignment_blade_thickness,frame_thickness);
+
+    // top
+    mirror([0, 1, 0]) {
+        translate([0, -frame_edge / 2 + frame_thickness , 0])
+        alignment_blade(frame_thickness, width = alignment_blade_thickness, frame_thickness);
+    }
 
     difference() {
 
@@ -72,11 +127,36 @@ module back() {
     edge_shift = frame_edge / 2 - frame_thickness;
     support_length = frame_edge - 2 * frame_thickness;
 
-    translate([0,-edge_shift , 0]) interior_support(support_length);
-    mirror([0, 1, 0]) translate([0,-edge_shift , 0]) interior_support(support_length);
 
-    translate([edge_shift ,0, 0]) rotate([0, 0, 90]) interior_support(support_length);
-    mirror([1,0, 0]) translate([edge_shift ,0, 0]) rotate([0, 0, 90]) interior_support(support_length);
+    
+
+    // bottom
+
+    translate([0,-edge_shift , 0]) 
+    difference() {
+        interior_support(support_length,frame_thickness);
+        alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+    }
+
+    // top
+    mirror([0, 1, 0]) 
+    translate([0,-edge_shift , 0]) 
+    difference() {
+        interior_support(support_length,frame_thickness);
+        alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+    }
+    
+
+    translate([edge_shift ,0, 0]) rotate([0, 0, 90])     difference() {
+        interior_support(support_length,frame_thickness);
+        alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+    }
+    mirror([1,0, 0]) translate([edge_shift ,0, 0]) rotate([0, 0, 90])     difference() {
+        interior_support(support_length,frame_thickness);
+        alignment_blade(frame_thickness, width = alignment_blade_relief, frame_thickness);
+    }
+    
+    
 
     difference() {
         
@@ -95,21 +175,3 @@ module back() {
 
 }
 
-module interior_support(support_length = 100) {
-
-    translate([-support_length / 2, 0, 0])
-
-    translate([0, 0, -frame_thickness/2])
-    rotate([ 90,00,0]) 
-    rotate([ 0,90,0]) 
-    linear_extrude(height=support_length) {
-        
-    poly_path([
-            [0,2 * frame_thickness],
-            [frame_thickness,-frame_thickness],
-            [0,-frame_thickness],
-        ]);
-
-    }
-
-}
